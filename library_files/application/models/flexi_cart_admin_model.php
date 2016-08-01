@@ -1247,7 +1247,7 @@ class Flexi_cart_admin_model extends Flexi_cart_lite_model
 		$this->db->trans_start();
 
 		// Calculate the expiry date of the voucher.
-		$expire_days = (! $this->is_positive($expire_days)) ? $this->flexi_cart_lite_model->get_config_setting('reward_voucher_days_valid') : $expire_day; 
+		$expire_days = (! $this->is_positive($expire_days)) ? $this->flexi_cart_lite_model->get_config_setting('reward_voucher_days_valid') : $expire_days; 
 		$expire_timestamp = ($expire_days * 24 * 60 * 60); // Convert to seconds.
 		
 		// Create a unique reference code for the voucher.
