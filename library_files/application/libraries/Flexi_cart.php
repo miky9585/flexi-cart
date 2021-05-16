@@ -27,7 +27,7 @@
 */
 
 // Load the flexi cart Lite library to allow it to be extended.
-load_class('Flexi_cart_lite', 'libraries', FALSE);
+include(APPPATH.'libraries/Flexi_cart_lite.php');
 
 class Flexi_cart extends Flexi_cart_lite
 {
