@@ -27,7 +27,7 @@
 */
 
 // Load the flexi cart Lite library to allow it to be extended.
-include(APPPATH.'libraries/Flexi_cart_lite.php');
+include_once(FCPATH.'common/libraries/Flexi_cart_lite.php');
 
 class Flexi_cart extends Flexi_cart_lite
 {
@@ -67,7 +67,7 @@ class Flexi_cart extends Flexi_cart_lite
 		{
 			// Loop through cart and update each item.
 			foreach($item_data as $column => $value)
-			{
+			{ 
 				if (is_array($value) && isset($value[$this->CI->flexi->cart_columns['item_id']]))
 				{
 					$recalculate_cart = ($this->CI->flexi_cart_model->insert_item($value, $update_existing_items)) ? TRUE : $recalculate_cart;
@@ -78,11 +78,11 @@ class Flexi_cart extends Flexi_cart_lite
 						break;
 					}
 				}
-			}
+			} 
 		}
 		
 		###++++++++++++++++++++++++++++###
-
+ 
 		// Recalculate cart totals if the insert was successful.
 		if ($this->update_cart_session('items_added_successfully', $recalculate_cart, TRUE))
 		{
