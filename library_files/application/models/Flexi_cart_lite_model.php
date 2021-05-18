@@ -51,7 +51,7 @@ class Flexi_cart_lite_model extends CI_Model
 		$this->flexi->error_messages = array('public' => array(), 'admin' => array());
 		
 		// Get current cart content from session.
-		if ($this->session->userdata($this->flexi->cart['name']) !== FALSE)
+		if ($this->session->userdata($this->flexi->cart['name']) !== FALSE )
 		{
 			$this->flexi->cart_contents = $this->session->userdata($this->flexi->cart['name']);
 		}
@@ -549,7 +549,7 @@ class Flexi_cart_lite_model extends CI_Model
 		
 		// Set correct calculation operator to either add or remove tax to value.
 		$tax_calc_operator = ($add_tax) ? '*' : '/'; 
-
+		
 		// If value is specifically set as tax free.
 		if ((float)$tax_rate == 0)
 		{
@@ -557,11 +557,15 @@ class Flexi_cart_lite_model extends CI_Model
 		}
 		else
 		{
-			$tax_calculation = $value . $tax_calc_operator . $tax_rate;		
+			if($tax_calc_operator == '*'){
+				$tax_calculation = $value*$tax_rate;
+			}else{
+				$tax_calculation = $value/$tax_rate; 
+			} 
 		}
 		
 		// Calculate new value with tax either added or removed.
-		return $this->calculate_string($tax_calculation);
+		return $tax_calculation;
 	}
 	
 	###++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++###	
@@ -642,6 +646,7 @@ class Flexi_cart_lite_model extends CI_Model
 						}
 					}
 					
+					
 					// Loop through item ids and get their corresponding values from the cart contents array.
 					if (! empty($item_ids))
 					{
@@ -659,11 +664,11 @@ class Flexi_cart_lite_model extends CI_Model
 
 								// Get the items discounted price.
 								$discount_price = $this->flexi->cart_contents['items'][$row['row_id']][$this->flexi->cart_columns['item_price']];
+								 
 								if (isset($this->flexi->cart_contents['settings']['discounts']['active_items'][$row['row_id']]['value']))
 								{
 									$discount_price -= $this->flexi->cart_contents['settings']['discounts']['active_items'][$row['row_id']]['value'];
 								}
-								
 								// Get the items discounted quantity.
 								$discount_quantity = (isset($this->flexi->cart_contents['settings']['discounts']['active_items'][$row['row_id']]['discount_quantity'])) ? 
 									$this->flexi->cart_contents['settings']['discounts']['active_items'][$row['row_id']]['discount_quantity'] : 0;
@@ -1051,8 +1056,7 @@ class Flexi_cart_lite_model extends CI_Model
 			'admin_data' => (bool)($this->flexi->cart_database['order_details']['columns']['cart_row_id']),
 			'auto_stock_status' => (bool)($this->flexi->cart_database['order_details']['columns']['item_id'] && $this->get_config_setting('auto_allocate_stock')),
 			'config' => (bool)($this->flexi->cart_database['configuration']['table'])
-		);
-		
+		); 
 		if (isset($statuses[$feature]))
 		{
 			// Set error message if tables or columns are disabled.
@@ -1152,10 +1156,12 @@ class Flexi_cart_lite_model extends CI_Model
 	 * Calculate string as an equation, without using eval()
 	 */
 	public function calculate_string($string) 
-	{
+	{ 
 		$string = trim($string);
 		$string = preg_replace('[^0-9\+\-\*\/\(\) ]', '', $string); // Remove non-numbers chars, except for math operators
-
+		debuge(eval($string));
+		
+		
 		$calculate = create_function('', 'return ('.$string.');');
 		
 		return (float)$calculate();
