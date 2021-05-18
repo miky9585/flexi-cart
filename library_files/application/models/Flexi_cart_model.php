@@ -475,12 +475,13 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 		
 		// Add new item row to cart array.
 		$this->flexi->cart_contents['items'][$new_row_id][$this->flexi->cart_columns['row_id']] = $new_row_id;
-		
+	
 		// Add the new item details to the cart array.
 		foreach ($item as $column => $value)
 		{
 			$this->flexi->cart_contents['items'][$new_row_id][$column] = $value;
-		}
+		}	
+		//debuge($this->flexi->cart_contents);
 
 		return TRUE;		
 	}
@@ -872,7 +873,7 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 			### Set Item Discount Data.
 
 			// Set item discount data if available.
-			$item_discount_data = array();
+			$item_discount_data = array(); 
 			
 			if (isset($discount_data['item_price'][$row_id]))
 			{
@@ -2436,9 +2437,9 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 		$unsorted_discount_data['manual_discount'] = $this->get_manual_discounts();
 		$unsorted_discount_data['non_group_discount'] = $this->get_non_group_discounts();
 		$unsorted_discount_data['group_discounts'] = $this->get_group_discounts();
-		
+		 
 		if (! empty($unsorted_discount_data['manual_discount']) || ! empty($unsorted_discount_data['non_group_discount']) || ! empty($unsorted_discount_data['group_discounts']))
-		{
+		{  
 			// Loop through and group discounts.
 			foreach($unsorted_discount_data as $discount_type)
 			{
@@ -2448,22 +2449,22 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 					foreach($discount_type as $target_column => $target_data)
 					{
 						foreach($target_data as $discount_id => $discount_data)
-						{
+						{ 
+							if($target_column == 'item_price' && !$discount_data['item_ids']) continue; 
 							$discounts[$target_column][$discount_id] = $discount_data;
 						}
 					}
 				}
-			}
-			
+			} 
 			###+++++++++++++++++++++++++++++++++###
 
 			### Validate and Sort Item Discounts.
-
 			$item_discount_data = $this->validate_item_discounts($discounts);
 			
 			// Merge item discount data.
 			$discounts['item_price'] = (! empty($item_discount_data['discounts']['item_price'])) ? $item_discount_data['discounts']['item_price'] : array();
 			$discounts['item_shipping'] = (! empty($item_discount_data['discounts']['item_shipping'])) ? $item_discount_data['discounts']['item_shipping'] : array();
+			
 			
 			###+++++++++++++++++++++++++++++++++###
 			
@@ -2487,8 +2488,7 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 				$sorted_discounts[$target_column] = $target_column;
 			}
 			array_multisort($sorted_discounts, SORT_ASC, $discounts);
-		}
-
+		} 
 		return $discounts;
 	}
 	
@@ -2603,10 +2603,10 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 			{
 				$sql_where .= $item[$this->flexi->cart_columns['item_id']].',';
 			}
-			$sql_where = rtrim($sql_where,',').') AND '.$tbl_cols_group_discounts['status'].' = 1)';
-			
+			$sql_where = rtrim($sql_where,',').') AND '.$tbl_cols_group_discounts['status'].' = 1)'; 
+		
 			if ($group_item_discount_data = $this->get_database_discount_data($sql_select, $sql_where, 'group_discounts'))
-			{
+			{ 
 				return $this->sort_discount_data($group_item_discount_data);
 			}
 		}
@@ -2662,7 +2662,7 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 			// Create SQL WHERE checking discounts are valid.
 			$sql_where = $tbl_cols_discounts['valid_date']." <= '".$this->database_date_time()."' AND ".
 				$tbl_cols_discounts['expire_date']." >= '".$this->database_date_time()."' AND ".$tbl_cols_discounts['status']." = 1 AND ".
-				$tbl_cols_discounts['usage_limit']." > 0 AND ((".$tbl_cols_discounts['location']." = '0' AND ".$tbl_cols_discounts['zone']." = '0')";
+				$tbl_cols_discounts['usage_limit']." > 0 AND (".$tbl_cols_discounts['location']." = '0' AND ".$tbl_cols_discounts['zone']." = '0')";
 			
 			// Loop through shipping locations.
 			if (! empty($location))
@@ -2677,9 +2677,8 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 						$sql_where = rtrim($sql_where, ' AND ').")";
 					}
 				}
-				$sql_where .= ")";
-			}
-			
+			//	$sql_where .= ")";
+			} 
 			// If the cart is being updated by an admin updating a saved order, enable all discounts that were active when the order was saved.
 			if (isset($this->flexi->cart_contents['settings']['admin_data']['discounts']['active']))
 			{
@@ -2700,7 +2699,6 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 					$arg_sql_where .= ($target_data == 'group_discounts') ? ' AND '.$tbl_cols_discounts['group'].' > 0)' : ' AND '.$tbl_cols_discounts['group'].' = 0)';
 				}
 			}
-
 			// Exclude any discounts that may have been specifically excluded from the cart.
 			// Typically these would be 'auto' discounts that are automatically applied when a value in the cart exceeds the required quantity and value 
 			// needed to activate a database discount.
@@ -2708,9 +2706,8 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 			{
 				$this->db->where_not_in($tbl_cols_discounts['id'], $this->flexi->cart_contents['settings']['discounts']['data']['excluded_discounts']);
 			}
-			
 			// Append submitted SQL WHERE statement to current SQL WHERE statement.
-			$this->db->where($sql_where.$arg_sql_where);
+			$this->db->where($sql_where.$arg_sql_where); 
 			
 			$sql_order_by = $tbl_cols_discounts['order_by'].' ASC, '.$tbl_cols_discounts['location'].' ASC, '.$tbl_cols_discounts['zone'].' ASC';
 			
@@ -2813,7 +2810,7 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 	 * Validates all item discounts checking minimum required quantities and values of all cart items.
 	 */
 	private function validate_item_discounts($item_discount_data)
-	{
+	{  
 		// Check the discount tables exist in the config file and are enabled.
 		if ($this->get_enabled_status('discounts'))
 		{
@@ -2822,7 +2819,6 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 			$discounted_items = array();
 			$discounted_cart_value = 0;
 			$non_combinable_discount = FALSE;
-			
 			// Loop through submitted discount data and remove all non item discounts.
 			foreach($item_discount_data as $target_column => $discount_data)
 			{
@@ -2839,10 +2835,9 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 				$items_sorted[$row_id] = $column[$this->flexi->cart_columns['item_price']];
 			}
 			array_multisort($items_sorted, SORT_ASC, $items);
-			
+			 
 			// Get array of current user submitted discount codes.
 			$discount_codes = $this->flexi->cart_contents['settings']['discounts']['codes'];
-			
 			// Start looping through each item based discount and calculate the discount value.
 			foreach($item_discount_data as $target_column => $discount_data)
 			{
@@ -2863,7 +2858,7 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 					
 					// Loop through cart items and tally the quantity and value of items applicable to the discount.
 					foreach($items as $row_id => $column)
-					{
+					{ 
 						if (in_array($column[$this->flexi->cart_columns['item_id']], $discount_cols['item_ids']) && 
 							! in_array($column[$this->flexi->cart_columns['item_id']], $discounted_items))
 						{
@@ -3835,8 +3830,7 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 					}
 				}
 			}
-		}
-
+		} 
 		// Config file hard-coded settings.
 		$config_defaults = $this->flexi->cart_defaults['configuration'];
 
