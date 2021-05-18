@@ -2450,7 +2450,7 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 					{
 						foreach($target_data as $discount_id => $discount_data)
 						{ 
-							if($target_column == 'item_price' && !$discount_data['item_ids']) continue; 
+							//if($target_column == 'item_price' && !$discount_data['item_ids']) continue; 
 							$discounts[$target_column][$discount_id] = $discount_data;
 						}
 					}
@@ -2662,7 +2662,7 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 			// Create SQL WHERE checking discounts are valid.
 			$sql_where = $tbl_cols_discounts['valid_date']." <= '".$this->database_date_time()."' AND ".
 				$tbl_cols_discounts['expire_date']." >= '".$this->database_date_time()."' AND ".$tbl_cols_discounts['status']." = 1 AND ".
-				$tbl_cols_discounts['usage_limit']." > 0 AND (".$tbl_cols_discounts['location']." = '0' AND ".$tbl_cols_discounts['zone']." = '0')";
+				$tbl_cols_discounts['usage_limit']." > 0 AND ((".$tbl_cols_discounts['location']." = '0' AND ".$tbl_cols_discounts['zone']." = '0')";
 			
 			// Loop through shipping locations.
 			if (! empty($location))
@@ -2677,7 +2677,7 @@ class Flexi_cart_model extends Flexi_cart_lite_model
 						$sql_where = rtrim($sql_where, ' AND ').")";
 					}
 				}
-			//	$sql_where .= ")";
+				$sql_where .= ")";
 			} 
 			// If the cart is being updated by an admin updating a saved order, enable all discounts that were active when the order was saved.
 			if (isset($this->flexi->cart_contents['settings']['admin_data']['discounts']['active']))
